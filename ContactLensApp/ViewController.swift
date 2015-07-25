@@ -38,7 +38,8 @@ class ViewController: UIViewController,
         while (i < 14) {
             let imageName = NSString(format: "images/%d.jpg", i)
             imageNameList.append(imageName)
-            imageList.append(setCIColorMonochrome(UIImage(named: imageName as String)!))
+            //imageList.append(setCIColorMonochrome(UIImage(named: imageName as String)!, color: CIColor(red: 0.75, green: 0.75, blue: 0.75)))
+            imageList.append(adjustImageBrightness(UIImage(named: imageName as String)!, brightness: -0.5))
             i++
         }
         
@@ -88,7 +89,7 @@ class ViewController: UIViewController,
         transition.type = kCATransitionFade
         self.view.layer.addAnimation(transition, forKey: kCATransition)
         
-        println("index:\(index), width:\(displayWidth), height:\(displayHeight), aspect:\(aspect)")
+        //println("index:\(index), width:\(displayWidth), height:\(displayHeight), aspect:\(aspect)")
         
         imageView = UIImageView(frame: CGRect(x: 0, y: 0, width: displayHeight, height: displayHeight))
         imageView.layer.position = CGPoint(x: displayWidth/2, y: displayHeight/2)
@@ -150,12 +151,12 @@ class ViewController: UIViewController,
     }
     
     // Monochrome filter
-    func setCIColorMonochrome(image: UIImage) ->UIImage {
+    func setCIColorMonochrome(image: UIImage, color: CIColor) ->UIImage {
         
         let ciImage: CIImage = CIImage(image: image)
         let ciFilter: CIFilter = CIFilter(name: "CIColorMonochrome")
         ciFilter.setValue(ciImage, forKey: kCIInputImageKey)
-        ciFilter.setValue(CIColor(red: 0.75, green: 0.75, blue: 0.75), forKey: "inputColor")
+        ciFilter.setValue(color, forKey: "inputColor")
         ciFilter.setValue(0.8, forKey: "inputIntensity")
         let ciContext: CIContext = CIContext(options: nil)
         let cgimg: CGImageRef = ciContext.createCGImage(ciFilter.outputImage, fromRect: ciFilter.outputImage.extent())
@@ -175,6 +176,19 @@ class ViewController: UIViewController,
         cropFilter.setValue(CIVector(CGRect: ciImage.extent()), forKey: "inputRectangle")
         
         return UIImage(CIImage: cropFilter.outputImage)!
+    }
+    
+    // Brightness *default
+    func adjustImageBrightness(image: UIImage, brightness: CGFloat) ->UIImage {
+        
+        var b: CGFloat = brightness
+        b = max(b, -1.0)
+        b = min(b,  1.0)
+        let ciFilter: CIFilter = CIFilter(name: "CIColorControls")
+        ciFilter.setValue(CIImage(image: image), forKey: kCIInputImageKey)
+        ciFilter.setValue(b, forKey: kCIInputBrightnessKey)
+        
+        return UIImage(CGImage: CIContext(options: nil).createCGImage(ciFilter.outputImage, fromRect: ciFilter.outputImage.extent()))!
     }
 }
 
