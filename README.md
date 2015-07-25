@@ -1,5 +1,4 @@
 # contact-lens-app
-an iphone app made for self-training with swift
+An iPhone App made for self-training with swift.
 
----
-Swiftの学習のために製作しているios app.
+Swiftの学習のために製作しているiOS app.
